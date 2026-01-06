@@ -5,7 +5,7 @@ let palos = ["viu", "cua", "hex", "cir"];
 // Array de número de cartas
 //let numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 // En las pruebas iniciales solo se trabajará con cuatro cartas por palo:
-let numeros = [10, 11, 12];
+let numeros = [11, 12];
 
 // paso (top y left) en pixeles de una carta a la siguiente en un mazo
 let paso = 5;
@@ -42,13 +42,32 @@ let temporizador = null; // manejador del temporizador
 
 /***** FIN DECLARACIÓN DE VARIABLES GLOBALES *****/
 
- 
+ // *** Paso 21: Reinicio de elementos HTML ***
 // Rutina asociada a boton reset
 /*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
-
-
-// El juego arranca ya al cargar la página: no se espera a reiniciar
-/*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
+function reiniciarJuego() {
+// Parar temporizador
+    if (temporizador) clearInterval(temporizador);
+    // Limpiar todos los mazos y tapetes
+    mazoSobrantes = [];
+    mazoReceptor1 = [];
+    mazoReceptor2 = [];
+    mazoReceptor3 = [];
+    mazoReceptor4 = [];
+    limpiarTapete(tapeteSobrantes);
+    limpiarTapete(tapeteReceptor1);
+    limpiarTapete(tapeteReceptor2);
+    limpiarTapete(tapeteReceptor3);
+    limpiarTapete(tapeteReceptor4);
+    // Quitar efectos de fin de juego si existen
+    const mensajeFin = document.querySelector(".mensaje-fin");
+    if (mensajeFin) mensajeFin.remove();
+    document.getElementById("mesa").classList.remove("fin-juego");
+    document.getElementById("marcadores").classList.remove("fin-juego");
+    // Volver a iniciar el juego
+    comenzarJuego();
+}
+/*** FIN CODIGO ***/
 
 // *** Paso 02: Crear el mazo Inicial ***
 function comenzarJuego() {
@@ -70,7 +89,6 @@ function comenzarJuego() {
         }
     }
 /*** FIN CODIGO ***/
-
 // *** Paso 05: Inicializando registros ***
 // Barajar y dejar mazoInicial en tapete inicial
 /*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
@@ -93,10 +111,13 @@ function comenzarJuego() {
      limpiarTapete(tapeteReceptor2); 
      limpiarTapete(tapeteReceptor3); 
      limpiarTapete(tapeteReceptor4);
+      // Limpiar tapete sobrantes y créditos 
+      limpiarTapete(tapeteSobrantes); 
+      const creditosFin = document.querySelector("#sobrantes .creditos"); 
+      if (creditosFin) creditosFin.remove(); 
 /*** FIN CODIGO ***/   
 /*** FIN CODIGO ***/ 
 } // comenzarJuego
-
 
 /**
 	Se debe encargar de arrancar el temporizador: cada 1000 ms se
@@ -185,14 +206,16 @@ function cargarTapeteInicial(mazo) {
         carta.style.top = (i * paso) + "px";
         carta.style.left = (i * paso) + "px";
         carta.style.transform = "translate(1%, 1%)";
+        carta.classList.remove("flip"); // *** Paso 19.
         // Solo carta superior es arrastrable
         carta.draggable = (i === mazo.length - 1);
 // *** Paso 12: condicional agregado para mover cartas ***
 /*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
 		if (i === mazo.length - 1) {
-		carta.ondragstart = al_mover;
+			carta.ondragstart = iniciarArrastre;
 		}
 /*** FIN CODIGO ***/
+		carta.addEventListener("click", () => animarCarta(carta)); // *** Paso 19.
         // Añadir al tapete
         tapeteInicial.appendChild(carta);   
 }    // Actualizar contador del inicial
@@ -247,9 +270,8 @@ function sacarCartaInicial() {
     carta.draggable = true;  // En sobrantes siempre es arrastrable
 /*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
 // *** Paso 14: Línea agregada ***
-    carta.ondragstart = al_mover;
+    carta.ondragstart = iniciarArrastre;
 /*** FIN CODIGO ***/
-	//
 	tapeteSobrantes.appendChild(carta);
     // Actualizar contadores
     //setContador(contInicial, mazoInicial.length);
@@ -278,17 +300,17 @@ function reciclarMazos() {
 
 /*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
 // *** Paso 09: Función para color de palo ***
-function getColor(palo) {
+function obtenerColorPalo(palo) {
     if (palo === "viu" || palo === "cua") return "naranja";
     return "gris";  // hex y cir
 }
 // *** Paso 10: Evento dragstart - guardar datos de la carta ***
-function al_mover(e) {
+function iniciarArrastre(e) {
     e.dataTransfer.setData("text/plain/numero", e.target.dataset.numero);
     e.dataTransfer.setData("text/plain/palo", e.target.dataset.palo);
 }
 // *** Paso 11: Evento drop - validar y mover carta ***
-function soltar(e) {
+function colocarCarta(e) {
     e.preventDefault();
     let numero = parseInt(e.dataTransfer.getData("text/plain/numero"));
     let palo = e.dataTransfer.getData("text/plain/palo");
@@ -325,8 +347,8 @@ function soltar(e) {
     } else {
         let ultima = destinoMazo[destinoMazo.length - 1];
         let ultimaNumero = parseInt(ultima.dataset.numero);
-        let ultimaColor = getColor(ultima.dataset.palo);
-        let esteColor = getColor(palo);
+        let ultimaColor = obtenerColorPalo(ultima.dataset.palo);
+        let esteColor = obtenerColorPalo(palo);
         puedeColocar = (numero === ultimaNumero - 1) && (esteColor !== ultimaColor);
     }
 if (!puedeColocar) {
@@ -345,7 +367,7 @@ if (!puedeColocar) {
                 ult.style.transform = "translate(-50%, -50%)";
                 ult.style.width = "66px";
                 ult.draggable = true;
-                ult.ondragstart = al_mover;
+                ult.ondragstart = iniciarArrastre;
                 tapeteSobrantes.appendChild(ult);
             }
         }
@@ -361,6 +383,14 @@ if (!puedeColocar) {
     carta.style.transform = "translate(-50%, -50%)";
     carta.style.width = "66px";
     carta.draggable = false;
+// *** Paso 20: Agregado animación al soltar carta***
+/*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/    
+    // Efecto golpe al colocar en receptor
+	carta.classList.add("golpe");
+	carta.addEventListener("animationend", () => {
+    carta.classList.remove("golpe"); // limpiar clase para futuros usos
+	}, { once: true });
+/*** FIN CODIGO ***/
     destinoTapete.appendChild(carta);
     // Actualizar origen visual
 if (origenMazo === mazoInicial) {
@@ -376,7 +406,7 @@ if (origenMazo === mazoInicial) {
             ult.style.transform = "translate(-50%, -50%)";
             ult.style.width = "66px";
             ult.draggable = true;
-            ult.ondragstart = al_mover;
+            ult.ondragstart = iniciarArrastre;
             tapeteSobrantes.appendChild(ult);
         }
     }
@@ -390,7 +420,31 @@ if (origenMazo === mazoInicial) {
     // Fin de juego
     if (mazoInicial.length === 0 && mazoSobrantes.length === 0) {
         clearInterval(temporizador);
-        alert(`¡Fin del juego!\nTiempo: ${contTiempo.textContent}\nMovimientos: ${contMovimientos.textContent}`);
+        //alert(`¡Fin del juego!\nTiempo: ${contTiempo.textContent}\nMovimientos: ${contMovimientos.textContent}`);
+// *** Paso 21: Agregadas líneas para efecto de fin de juego***
+/*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
+		document.getElementById("marcadores").classList.add("fin-juego");
+		document.getElementById("mesa").classList.add("fin-juego");
+		const inicial = document.getElementById("inicial");
+		// Crear mensaje
+		const mensaje = document.createElement("div");
+		mensaje.classList.add("mensaje-fin");
+		mensaje.innerHTML = `¡Fin del juego!<br>
+        Tiempo: ${contTiempo.textContent}<br>
+        Movimientos: ${contMovimientos.textContent}`;
+		inicial.appendChild(mensaje);
+		const sobrantes = document.getElementById("sobrantes");
+		const creditos = document.createElement("div");
+		creditos.classList.add("creditos");
+		creditos.innerHTML = `
+		Docente: <br>Ismael de Fez Lava<br>
+		Asignatura: <br>DES_APLIC_WEB_II<br>
+		Integrantes: <br>Eduardo Criollo, 
+		<br>Hubert Ferrer, 
+		<br>José Poblete
+		`;
+sobrantes.appendChild(creditos);
+/*** FIN CODIGO ***/
     }
 	// Verificación automática
 	reciclarMazos(); 
@@ -402,6 +456,16 @@ if (origenMazo === mazoInicial) {
 function limpiarTapete(tapete) {
     // Elimina solo las cartas (<img>), no los <span>
     Array.from(tapete.querySelectorAll("img")).forEach(img => img.remove());
+}
+/*** FIN CODIGO ***/
+
+// *** Paso 19: Agregado para efecto de animación ***
+/*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/    
+function animarCarta(carta) {
+    carta.classList.add("flip");
+    carta.addEventListener("animationend", () => {
+        carta.classList.remove("flip");
+    }, { once: true });
 }
 /*** FIN CODIGO ***/
 
@@ -423,13 +487,13 @@ tapeteInicial.addEventListener("click", sacarCartaInicial);
     tapete.ondragenter = e => e.preventDefault();
     tapete.ondragover = e => e.preventDefault();
     tapete.ondragleave = e => e.preventDefault();
-    tapete.ondrop = soltar;
+    tapete.ondrop = colocarCarta;
 });
 /*** FIN CODIGO ***/
 
 // *** Paso 16: Reinicio completo ***
 /*** !!!!!!!!!!!!!!!!!!! CODIGO !!!!!!!!!!!!!!!!!!!! **/
-document.getElementById("reset").addEventListener("click", comenzarJuego);
+document.getElementById("reset").addEventListener("click", reiniciarJuego);
 // Reciclaje automático 
 reciclarMazos();
 /*** FIN CODIGO ***/
