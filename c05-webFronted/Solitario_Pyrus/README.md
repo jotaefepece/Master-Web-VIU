@@ -39,17 +39,13 @@ Este solitario es:
 
 ---
 
-## Aviso honesto
+## 📸 Capturas de referencia
 
-Este ejercicio:
-- ❌ No representa una entrega oficial
-- ❌ No busca cumplir rúbricas
-- ❌ No está optimizado “para nota”
+### Vista inicial del solitario
+![Vista inicial del juego](capturas/sol1.png)
 
-Pero sí:
-- ✅ Representa curiosidad
-- ✅ Representa disfrute
-- ✅ Representa libertad creativa
+### Juego en progreso
+![Juego en progreso](capturas/sol2.png)
 
 ---
 
