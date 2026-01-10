@@ -5,8 +5,8 @@ body {
     padding: 0;
 }
 .central {
-    max-width: 900px;        /* ancho horizontal del área de juego */
-    margin: 30px auto;        /* centrado horizontal */
+    max-width: 924px;        /* ancho horizontal del área de juego */
+    margin: 10px auto;        /* centrado horizontal */
     padding: 10px;
     background-color: #f2f2f2; /* fondo suave dentro del área */
     border-radius: 12px;
@@ -15,7 +15,7 @@ body {
 /* Botón de reinicio más alineado con la mesa */
 #reset {
     display: block;
-    margin: 10px auto 0 auto; /* separa un poco del área de juego y lo centra */
+    margin: 16px auto 0 auto; /* separa un poco del área de juego y lo centra */
     position: relative;       /* evita que se vaya al fondo del rectángulo */
 }
 /* Animación de giro */
@@ -91,9 +91,9 @@ body {
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 14px;          /* 👈 más grande que 12px */
-  color: #8B0000;           /* 👈 rojo oscuro */
-  font-weight: bold;        /* 👈 más marcado */
+  font-size: 14px;          /*  más grande que 12px */
+  color: #8B0000;           /*  rojo oscuro */
+  font-weight: bold;        /*  más marcado */
   text-align: center;
   line-height: 1.3;         /* un poquito más de aire entre líneas */
 }
@@ -119,10 +119,10 @@ h2#marcadores{
 
 
 div.tapete {
-  width: 150px;
-  height: 150px;
+  width: 180px;
+  height: 180px;
   position: relative;
-  border-radius: 12px;
+  border-radius: 10px;
   margin: 5px;
 }
 
@@ -139,7 +139,7 @@ div.tapete:not(#inicial){
 /* Tapete inicial más grande y rosado (Kirby) */
 div.tapete#inicial {
   width: 400px;
-  height: 400px;
+  height: 420px;
   background-color: #ffb6c1; /* rosado pastel */
   border: 3px solid #ff69b4; /* borde más intenso */
   border-radius: 15px;
@@ -150,8 +150,8 @@ div.tapete#sobrantes {
   position: absolute;
   bottom: 20px;
   right: 20px;
-  width: 150px;
-  height: 150px;
+  width: 160px;
+  height: 160px;
   background-color: #87ceeb; /* celeste */
   border: 3px solid #add8e6;
   border-radius: 12px;
@@ -161,11 +161,11 @@ div.tapete#sobrantes {
 
 /* Tapetes receptores más grandes y verdes (praderas) */
 div.tapete.receptor {
-  width: 150px;
-  height: 150px;
+  width: 160px;
+  height: 160px;
   background-color: #98fb98; /* verde claro */
-  border: 3px solid #90ee90;
-  border-radius: 12px;
+  border: 1px solid #90ee90;
+  border-radius: 10px;
   box-shadow: 0 0 10px rgba(144,238,144,0.5);
 }
 
@@ -176,7 +176,7 @@ div#mesa {
   background-color: #fff176; /* amarillo pastel */
   border-radius: 20px;
   padding: 20px;
-  box-shadow: inset 0 0 30px rgba(255,215,0,0.3);
+  box-shadow: inset 0 0 20px rgba(255,215,0,0.3);
 }
 #mesa {
   position: relative;
@@ -190,31 +190,94 @@ div#mesa {
   box-shadow: inset 0 0 30px rgba(255,215,0,0.3);
 
   /* 👉 dimensiones grandes */
-  width: 840px;   /* ancho fijo */
-  height: 360px;   /* alto fijo */
+  width: 860px;   /* ancho fijo */
+  height: 370px;   /* alto fijo */
   margin: 0 auto;  /* centrado horizontal */
 }
 
 
 .tapetes_superiores {
   display: flex;
-  justify-content: flex-start; /* 👈 alinea a la izquierda */
+  justify-content: flex-start; /*   alinea a la izquierda */
   align-items: flex-start;
   gap: 20px; /* espacio entre inicial y sobrantes */
-  width: 100%; /* ocupa todo el ancho disponible */
+  width: 120%; /* ocupa todo el ancho disponible */
 }
 
 .tapete.receptor,
 #sobrantes {
-  margin-top: -310px; /* 👈 sube solo estos tapetes */
+  margin-top: -330px; /*   tapetes */
+}
+
+#btn_reglas {
+  width: 100px;
+  height: 100px;
+  margin-top: 190px;   /* posición relativa a los tapetes */
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ff69b4;   /* rosado intenso */
+  color: #fff;                 /* texto blanco */
+  border: 2px solid #98fb98;   /* borde verde pradera */
+  font-weight: bold;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,105,180,0.6); /* brillo rosado */
+  transition: all 0.3s ease;   /* suaviza el hover */
+}
+
+#btn_reglas:hover {
+  background-color: #5cb85c;   /* verde intenso */
+  color: #fff;
+  border-color: #ff69b4;       /* borde rosado al pasar el mouse */
+  transform: scale(1.1) rotateZ(3deg); /* efecto dinámico */
+  box-shadow: 0 0 15px rgba(92,184,92,0.7); /* brillo verde */
+}
+.popup-reglas {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  background: #fff8c6;
+  border: 2px solid #f0c000;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  z-index: 999;
+}
+
+
+#btn_ranking {
+  width: 100px;
+  height: 100px;
+  margin-top: 190px;   /* ajusta según la posición que quieras */
+  margin-left: 25px;  /* lo separa del botón de reglas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #87ceeb;   /* celeste cielo */
+  color: #E65014;              /* naranja del título */
+  border: 2px solid #add8e6;   /* borde celeste claro */
+  font-weight: bold;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(135,206,235,0.6); /* brillo celeste */
+  transition: all 0.3s ease;
+}
+
+#btn_ranking:hover {
+  background-color: #E65014;   /* naranja intenso */
+  color: #fff;                 /* texto blanco */
+  border-color: #ffb6c1;       /* borde rosado para guiño a Kirby */
+  transform: scale(1.1) rotateZ(-3deg);
+  box-shadow: 0 0 15px rgba(230,80,20,0.7); /* brillo naranja */
 }
 
 
 
 /* Tapete inicial más grande y rosado (Kirby) */
 #inicial {
-  width: 300px;
-  height: 300px;
+  width: 320px;
+  height: 320px;
   background-color: #ffb6c1;
   border: 3px solid #ff69b4;
   border-radius: 15px;
@@ -223,11 +286,57 @@ div#mesa {
 
 /* Tapete sobrantes más grande y celeste (cielo) */
 #sobrantes {
-  width: 150px;
-  height: 150px;
+  width: 140px;
+  height: 140px;
    margin-left: auto; 
   background-color: #87ceeb;
   border: 3px solid #add8e6;
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(135,206,235,0.5);
+}
+
+/* Contenedor ocupa toda la ventana */
+#meta-knight-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* no bloquea clicks en el resto */
+    z-index: 9999;
+}
+
+/* Imagen de Meta Knight */
+#meta-knight-container img {
+    position: absolute; /* 👈 necesario para usar left/top */
+    width: 80px;
+    height: 80px;
+    cursor: pointer !important;
+    pointer-events: auto !important; /* la imagen sí recibe clicks */
+    animation: meta-float 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    border: 3px solid #E65014;
+    border-radius: 50%;
+    transition: transform 0.4s ease;
+}
+
+#meta-knight-container img:hover {
+    transform: scale(1.3) rotate(360deg);
+}
+
+/* Animación flotante más suave */
+@keyframes meta-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); } /* menos desplazamiento */
+}
+
+/* Feedback al clickear: suave */
+.meta-knight-clicked {
+  animation: knight-fadeout 0.8s ease-out forwards;
+}
+
+@keyframes knight-fadeout {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.15); opacity: 0.7; } /* se agranda un poquito */
+  100% { transform: scale(1.2); opacity: 0; }    /* desaparece suavemente */
 }

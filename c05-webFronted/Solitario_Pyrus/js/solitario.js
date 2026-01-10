@@ -5,7 +5,7 @@ let palos = ["kir", "wdo", "hex", "cir"];
 // Array de número de cartas
 let numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 // En las pruebas iniciales solo se trabajará con cuatro cartas por palo:
-//let numeros = [9, 10];
+//let numeros = [8, 9, 10];
 // paso (top y left) en pixeles de una carta a la siguiente en un mazo
 let paso = 5;
 
@@ -138,7 +138,7 @@ function cargarTapeteInicial(mazo) {
         // Posición absoluta dentro del tapete 
         carta.style.position = "absolute";
         // Tamaño de la carta 
-        carta.style.width = "66px";
+        carta.style.width = "86px";
         // Escalera: desplazamiento diagonal
         carta.style.top = (i * paso) + "px";
         carta.style.left = (i * paso) + "px";
@@ -185,7 +185,7 @@ function sacarCartaInicial() {
     carta.style.top = "50%";
     carta.style.left = "50%";
     carta.style.transform = "translate(-50%, -50%)";
-    carta.style.width = "66px";
+    carta.style.width = "90px";
     carta.draggable = true; 
     carta.ondragstart = iniciarArrastre;
 	tapeteSobrantes.appendChild(carta);
@@ -273,7 +273,7 @@ if (!puedeColocar) {
                 ult.style.top = "50%";
                 ult.style.left = "50%";
                 ult.style.transform = "translate(-50%, -50%)";
-                ult.style.width = "66px";
+                ult.style.width = "77px";
                 ult.draggable = true;
                 ult.ondragstart = iniciarArrastre;
                 tapeteSobrantes.appendChild(ult);
@@ -288,7 +288,7 @@ if (!puedeColocar) {
     carta.style.top = "50%";
     carta.style.left = "50%";
     carta.style.transform = "translate(-50%, -50%)";
-    carta.style.width = "66px";
+    carta.style.width = "77px";
     carta.draggable = false;
 	carta.classList.add("golpe");
 	carta.addEventListener("animationend", () => {
@@ -307,7 +307,7 @@ if (origenMazo === mazoInicial) {
             ult.style.top = "50%";
             ult.style.left = "50%";
             ult.style.transform = "translate(-50%, -50%)";
-            ult.style.width = "66px";
+            ult.style.width = "77px";
             ult.draggable = true;
             ult.ondragstart = iniciarArrastre;
             tapeteSobrantes.appendChild(ult);
@@ -374,3 +374,141 @@ document.getElementById("reset").addEventListener("click", reiniciarJuego);
 // Reciclaje automático 
 reciclarMazos();
 
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btnReglas = document.getElementById("btn_reglas");
+
+  btnReglas.addEventListener("click", function () {
+    // ¿Ya existe el popup?
+    let reglasDiv = document.getElementById("popup_reglas");
+
+    if (reglasDiv) {
+      // Si existe, lo quitamos (cerrar)
+      reglasDiv.remove();
+    } else {
+      // Si no existe, lo creamos (abrir)
+      reglasDiv = document.createElement("div");
+      reglasDiv.id = "popup_reglas";   // 👈 ID para poder encontrarlo después
+      reglasDiv.className = "popup-reglas";
+      reglasDiv.innerHTML = `
+        <h3>📜 Reglas del juego</h3>
+        <ul>
+          <li>Mueve la carta visible a los Tapetes verdes.</li>
+          <li>Organiza las cartas en orden descendente.</li>
+          <li>Se debe ir alternando colores dentro de cada Tapete.</li>
+          <li>Usa la menor cantidad de movimientos posible.</li>
+          <li>👾👾 Meta Knight puede aparecer en los bordes de la ventana. </li>
+          <li>👾👾 Si lo atrapas, te descontará 3 movimientos.</li>
+        </ul>
+        <button id="cerrar_reglas">Cerrar</button>
+      `;
+      document.body.appendChild(reglasDiv);
+
+      // Botón de cerrar dentro del popup
+      document.getElementById("cerrar_reglas").addEventListener("click", function () {
+        reglasDiv.remove();
+      });
+    }
+  });
+});
+
+
+function spawnMetaKnight() {
+    const container = document.getElementById("meta-knight-container");
+    container.innerHTML = ""; // Limpia cualquier instancia anterior
+
+    const img = document.createElement("img");
+    img.src = "imagenes/meta-knight.png";
+    img.alt = "¡Meta Knight!";
+
+    // Tamaño de la ventana
+    const anchoVentana = window.innerWidth;
+    const altoVentana = window.innerHeight;
+
+    // Tamaño aproximado de la imagen
+    const tamanoImg = 80;
+
+    // Selecciona borde aleatorio: 0=izq, 1=der, 2=arriba, 3=abajo
+    const borde = Math.floor(Math.random() * 4);
+    let x, y;
+
+    switch (borde) {
+        case 0: // Izquierda
+            x = 0;
+            y = Math.random() * (altoVentana - tamanoImg);
+            break;
+        case 1: // Derecha
+            x = anchoVentana - tamanoImg;
+            y = Math.random() * (altoVentana - tamanoImg);
+            break;
+        case 2: // Arriba
+            x = Math.random() * (anchoVentana - tamanoImg);
+            y = 0;
+            break;
+        case 3: // Abajo
+            x = Math.random() * (anchoVentana - tamanoImg);
+            y = altoVentana - tamanoImg;
+            break;
+    }
+
+    // Posiciona la imagen
+    img.style.left = x + "px";
+    img.style.top = y + "px";
+
+    // Acción al clickear
+img.onclick = function() {
+        const movimientosActuales = parseInt(contMovimientos.textContent) || 0;
+        if (movimientosActuales > 3) {
+            for (let i = 0; i < 3; i++) {
+                decContador(contMovimientos);
+            }
+
+            img.classList.add("meta-knight-clicked");
+
+            // Popup
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                position: fixed;
+                top: 20%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(45deg, #ffeb3b, #ffc107);
+                color: #333;
+                padding: 20px;
+                border-radius: 15px;
+                font-size: 24px;
+                font-weight: bold;
+                z-index: 10001;
+                box-shadow: 0 0 30px rgba(255,215,0,0.8);
+            `;
+            popup.innerHTML = "¡Meta Knight te ayuda!<br> Ya tienes -3 Movimientos!";
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+        } else {
+            alert("¡No hay suficientes movimientos para descontar!");
+        }
+
+        container.removeChild(img);
+    };
+
+    container.appendChild(img);
+    container.style.display = "block";
+
+    // Desaparece en 0,999 segundos
+    setTimeout(() => {
+        if (container.contains(img)) container.removeChild(img);
+        container.style.display = "none";
+    }, 999);
+}
+
+// Inicia el spawn aleatorio cada 800–1500 ms
+function iniciarMetaKnight() {
+    spawnMetaKnight();
+    const tiempo = Math.random() * 9999 + 9999;
+    metaKnightTimer = setTimeout(iniciarMetaKnight, tiempo);
+}
+
+// Inicia después de 13 segundos
+window.addEventListener("load", () => {
+    setTimeout(iniciarMetaKnight, 9999+3333);
+});
