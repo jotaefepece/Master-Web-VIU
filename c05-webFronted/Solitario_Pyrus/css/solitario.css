@@ -12,12 +12,39 @@ body {
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(255,255,255,0.1);
 }
-/* Botón de reinicio más alineado con la mesa */
+
+/* Botón de reinicio con estilo dulce */
 #reset {
-    display: block;
-    margin: 16px auto 0 auto; /* separa un poco del área de juego y lo centra */
-    position: relative;       /* evita que se vaya al fondo del rectángulo */
+  display: block;
+  margin: 16px auto 0 auto;   /* centrado y separado de la mesa */
+  position: relative;
+  background: linear-gradient(135deg, #ffc0cb, #fff8c6); /* rosado + amarillo pastel */
+  border: 3px solid #E65014;  /* naranja coherente con el resto */
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Comic Sans MS', cursive;
+  color: #3b2f2f;             /* marrón intenso oscuro */
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
+
+/* Efecto hover */
+#reset:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #ffb6c1, #ffe680); /* rosado más vivo + amarillo */
+  box-shadow: 0 6px 15px rgba(255,182,193,0.6);
+}
+
+/* Efecto al presionar */
+#reset:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
 /* Animación de giro */
 @keyframes flip {
 	0%   { transform: translate(-55%, -55%) rotateY(0deg); }
@@ -339,4 +366,149 @@ div#mesa {
   0%   { transform: scale(1); opacity: 1; }
   50%  { transform: scale(1.15); opacity: 0.7; } /* se agranda un poquito */
   100% { transform: scale(1.2); opacity: 0; }    /* desaparece suavemente */
+}
+
+/* Popup Ranking más pequeño */
+#popup_ranking {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #87ceeb, #ffc0cb); /* celeste + rosado */
+  border: 1px solid #E65014;
+  border-radius: 10px;
+  padding: 10px;
+  width: 50%;             /* 👈 más pequeño que antes */
+  max-width: 650px;       /* 👈 límite más reducido */
+  box-shadow: 0 0 25px rgba(0,0,0,0.3);
+  z-index: 10000;
+  text-align: center;
+  color: #630101; /* 👈 marrón intenso oscuro */ 
+  font-family: 'Comic Sans MS', cursive;
+}
+
+/* Título Ranking */
+#popup_ranking h3 {
+  margin-bottom: 15px;
+  font-size: 32px;        /* 👈 más grande */
+  font-weight: bold;
+  color: #E65014;
+  text-shadow: 2px 2px #fff;
+  letter-spacing: 1px;
+}
+
+/* Lista Ranking en 3 columnas */
+#ranking_list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 4px 0;
+  text-align: left;
+}
+
+/* Cada ítem del ranking */
+#ranking_list li {
+  background: #fff8c6;
+  border: 1px solid #add8e6;
+  border-radius: 1px;
+  padding: 1px;
+  text-align: center;
+  font-size: 14px;        /* 👈 letras más grandes */
+  font-weight: bold;      /* 👈 más marcadas */
+  font-family: 'Comic Sans MS', cursive; /* estilo dibujado */
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#ranking_list li:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 14px rgba(255,182,193,0.6);
+}
+
+/* Botón cerrar */
+#cerrar_ranking {
+  background: #E65014;
+  color: #fff;
+  border: 2px solid #ffc0cb;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;        /* 👈 más grande */
+  font-family: 'Comic Sans MS', cursive;
+  transition: background 0.3s ease;
+}
+
+#cerrar_ranking:hover {
+  background: #ff69b4;
+}
+
+/* Fondo semitransparente */
+#nick_overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+}
+
+/* Caja del popup */
+#nick_popup {
+  background: linear-gradient(135deg, #ffc0cb, #fff8c6); /* rosado + amarillo pastel */
+  border: 3px solid #E65014;
+  border-radius: 15px;
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+  font-family: 'Comic Sans MS', cursive;
+  color: #3b2f2f; /* marrón intenso */
+  box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+/* Título */
+#nick_popup h3 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #E65014;
+}
+
+/* Input */
+#nick_input {
+  width: 90%;
+  padding: 8px;
+  border: 2px solid #add8e6;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-family: 'Comic Sans MS', cursive;
+}
+
+/* Botones */
+.popup-buttons {
+  display: flex;
+  justify-content: space-around;
+}
+
+.popup-buttons button {
+  background: #E65014;
+  color: #fff;
+  border: 2px solid #ffc0cb;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: 'Comic Sans MS', cursive;
+  transition: background 0.3s ease;
+}
+
+.popup-buttons button:hover {
+  background: #ff69b4;
 }

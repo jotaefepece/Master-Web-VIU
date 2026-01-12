@@ -3,11 +3,12 @@
 // Array de palos
 let palos = ["kir", "wdo", "hex", "cir"];
 // Array de número de cartas
-let numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let numeros = [1, 2, 3, 4, 5, 6, 7];
 // En las pruebas iniciales solo se trabajará con cuatro cartas por palo:
-//let numeros = [8, 9, 10];
+//let numeros = [9, 10];
 // paso (top y left) en pixeles de una carta a la siguiente en un mazo
 let paso = 5;
+let juegoTerminado = false;
 
 // Tapetes				
 let tapeteInicial   = document.getElementById("inicial");
@@ -39,8 +40,10 @@ let contTiempo  = document.getElementById("contador_tiempo"); // span cuenta tie
 let segundos 	 = 0;    // cuenta de segundos
 let temporizador = null; // manejador del temporizador
 
+/***** Funciones de funcionamiento *****/
 function reiniciarJuego() {
 // Parar temporizador
+	juegoTerminado = false;
     if (temporizador) clearInterval(temporizador);
     // Limpiar todos los mazos y tapetes
     mazoSobrantes = [];
@@ -62,6 +65,7 @@ function reiniciarJuego() {
     comenzarJuego();
 }
 
+/***** Funciones de funcionamiento *****/
 function comenzarJuego() {
     mazoInicial = []; // Limpiamos por si acaso
     for (let i = 0; i < palos.length; i++) {
@@ -156,6 +160,7 @@ function cargarTapeteInicial(mazo) {
     setContador(contInicial, mazo.length);
 } // cargarTapeteInicial
 
+/***** Funciones para contadores *****/
 function incContador(contador){
     let valor = parseInt(contador.textContent) || 0;
     contador.textContent = valor + 1;
@@ -168,6 +173,7 @@ function setContador(contador, valor) {
     contador.textContent = valor;
 } // setContador
 
+/***** Funciones de inicio de juego *****/
 function sacarCartaInicial() {
     // Si el mazo inicial está vacío, se reciclará
 	if (mazoInicial.length === 0) { 
@@ -219,6 +225,7 @@ function iniciarArrastre(e) {
     e.dataTransfer.setData("text/plain/palo", e.target.dataset.palo);
 }
 
+/***** Funciones de movimiento carta *****/
 function colocarCarta(e) {
     e.preventDefault();
     let numero = parseInt(e.dataTransfer.getData("text/plain/numero"));
@@ -252,7 +259,7 @@ function colocarCarta(e) {
     // Validar reglas
     let puedeColocar = false;
     if (destinoMazo.length === 0) {
-        puedeColocar = (numero === 10);
+        puedeColocar = (numero === 7); //ajuste mazo total cartas
     } else {
         let ultima = destinoMazo[destinoMazo.length - 1];
         let ultimaNumero = parseInt(ultima.dataset.numero);
@@ -321,7 +328,9 @@ if (origenMazo === mazoInicial) {
     //setContador(origenContador, origenMazo.length);
 	//setContador(destinoContador, destinoMazo.length);
     // Fin de juego
-    if (mazoInicial.length === 0 && mazoSobrantes.length === 0) {
+    const scoreFinal = parseInt(contMovimientos.textContent, 10);
+if (!juegoTerminado && mazoInicial.length === 0 && mazoSobrantes.length === 0) {
+		juegoTerminado = true;
         clearInterval(temporizador);
 		document.getElementById("marcadores").classList.add("fin-juego");
 		document.getElementById("mesa").classList.add("fin-juego");
@@ -339,17 +348,43 @@ if (origenMazo === mazoInicial) {
 		creditos.innerHTML = `
 		Diseños: <br>Pyrusuchitus
 		`;
-sobrantes.appendChild(creditos);
+		sobrantes.appendChild(creditos);
+		
+		fetch("ranking-api/get_ranking.php")
+	  .then(res => res.json())
+	  .then(ranking => {
+
+		// Si hay menos de 27 entradas, entra directo
+		if (ranking.length < 27) {
+		  pedirNickYGuardar(scoreFinal);
+		  return;
+		}
+
+		// Peor score actual (última posición)
+		const peorScore = ranking[ranking.length - 1].score;
+
+		// Entra solo si hizo MENOS movimientos
+		if (scoreFinal < peorScore) {
+		  pedirNickYGuardar(scoreFinal);
+		}
+
+		// Si no mejora, no se guarda
+		})
+		.catch(err => console.error("Error evaluando ranking:", err));
+
+
     }
 	// Verificación automática
 	reciclarMazos(); 
 }
 
+/***** Funciones de limpieza Tapates *****/
 function limpiarTapete(tapete) {
     // Elimina solo las cartas (<img>), no los <span>
     Array.from(tapete.querySelectorAll("img")).forEach(img => img.remove());
 }
 
+/***** Funciones de animación cartas *****/
 function animarCarta(carta) {
     carta.classList.add("flip");
     carta.addEventListener("animationend", () => {
@@ -374,7 +409,7 @@ document.getElementById("reset").addEventListener("click", reiniciarJuego);
 // Reciclaje automático 
 reciclarMazos();
 
-
+/***** Funciones de uso botones *****/
 document.addEventListener("DOMContentLoaded", function () {
   const btnReglas = document.getElementById("btn_reglas");
 
@@ -394,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <h3>📜 Reglas del juego</h3>
         <ul>
           <li>Mueve la carta visible a los Tapetes verdes.</li>
-          <li>Organiza las cartas en orden descendente.</li>
+          <li>Organiza las cartas en orden descendente: 7,6,5,4,3,2,1.</li>
           <li>Se debe ir alternando colores dentro de cada Tapete.</li>
           <li>Usa la menor cantidad de movimientos posible.</li>
           <li>👾👾 Meta Knight puede aparecer en los bordes de la ventana. </li>
@@ -412,7 +447,89 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  const btnRanking = document.getElementById("btn_ranking");
 
+  btnRanking.addEventListener("click", function () {
+    // ¿Ya existe el popup?
+    let popup = document.getElementById("popup_ranking");
+
+    if (popup) {
+      popup.remove();
+      return;
+    }
+
+    // Crear popup
+    popup = document.createElement("div");
+    popup.id = "popup_ranking";
+    popup.className = "popup-reglas";
+
+    popup.innerHTML = `
+      <h3>🏆 Ranking</h3>
+      <ul id="ranking_list">
+        <li>Cargando ranking...</li>
+      </ul>
+      <button id="cerrar_ranking">Cerrar</button>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Botón cerrar
+    document
+      .getElementById("cerrar_ranking")
+      .addEventListener("click", function () {
+        popup.remove();
+      });
+      
+       // Solo para mostrar un ranking de ejemplo
+      fetch("ranking-api/get_ranking.php")
+  .then(res => {
+    if (!res.ok) throw new Error("API no disponible");
+    return res.json();
+  })
+  .then(data => {
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error("Ranking vacío");
+    }
+    renderRanking(data);
+  })
+  .catch(() => {
+    console.warn("Usando ranking ficticio local");
+    renderRanking(rankingFicticio);
+  });
+
+/* ********** función sólo si está conectado a database
+    fetch("ranking-api/get_ranking.php")
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById("ranking_list");
+        list.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+          list.innerHTML = "<li>No hay puntajes aún</li>";
+          return;
+        }
+
+        data.forEach((row, index) => {
+        const li = document.createElement("li");
+		const fecha = new Date(row.created_at).toLocaleDateString();
+
+		li.innerHTML = `
+		  <strong>${index + 1}: ${row.nick}</strong><br>
+		  <small> ${row.score} movimientos — ${fecha}</small>
+		`;
+        list.appendChild(li);
+        });
+      })
+      .catch(err => {
+        const list = document.getElementById("ranking_list");
+        list.innerHTML = "<li>Error cargando ranking</li>";
+        console.error(err);
+      });   *********************************                */
+  });           
+});
+
+/***** Funciones para uso de comodín *****/
 function spawnMetaKnight() {
     const container = document.getElementById("meta-knight-container");
     container.innerHTML = ""; // Limpia cualquier instancia anterior
@@ -512,3 +629,127 @@ function iniciarMetaKnight() {
 window.addEventListener("load", () => {
     setTimeout(iniciarMetaKnight, 9999+3333);
 });
+
+/***** Funciones para uso de ranking *****/
+function pedirNickYGuardar(scoreFinal) {
+  // Crear overlay
+  const overlay = document.createElement("div");
+  overlay.id = "nick_overlay";
+  overlay.innerHTML = `
+    <div id="nick_popup">
+      <h3>🏆 ¡Entraste al ranking!</h3>
+      <p>Ingresa tu nickname:</p>
+      <input type="text" id="nick_input" maxlength="12" placeholder="Tu nick..." />
+      <div class="popup-buttons">
+        <button id="nick_ok">Guardar</button>
+        <button id="nick_cancel">Cancelar</button>
+      </div>
+      <p id="nick_error" style="display:none; color:red; font-size:14px; margin-top:8px;">
+        Debes ingresar un nickname válido
+      </p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Botón Guardar
+  document.getElementById("nick_ok").addEventListener("click", () => {
+    let nick = document.getElementById("nick_input").value.trim();
+
+    // 👇 recorta a máximo 12 caracteres
+    nick = nick.substring(0, 12);
+
+    if (!nick) {
+      document.getElementById("nick_error").style.display = "block";
+      return;
+    }
+
+    fetch("ranking-api/submit_score.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nick: nick, score: scoreFinal })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "saved") {
+        mostrarMensajeRanking("🏆 Puntaje guardado");
+      } else {
+        mostrarMensajeRanking("No se pudo guardar");
+      }
+      overlay.remove();
+    })
+    .catch(err => {
+      console.error(err);
+      mostrarMensajeRanking("Error guardando ranking");
+      overlay.remove();
+    });
+  });
+
+  // Botón Cancelar
+  document.getElementById("nick_cancel").addEventListener("click", () => {
+    mostrarMensajeRanking("Ranking cancelado");
+    overlay.remove();
+  });
+}
+
+
+
+function mostrarMensajeRanking(texto) {
+  const msg = document.createElement("div");
+  msg.className = "mensaje-ranking";
+  msg.textContent = texto;
+
+  document.body.appendChild(msg);
+
+  setTimeout(() => {
+    msg.remove();
+  }, 3000);
+}
+
+/***** Funciones para uso de ranking ficticio*****/
+
+const rankingFicticio = [
+  { nick: "Yoshi", score: 278, created_at: "2026-10-30" },
+  { nick: "Roy", score: 333, created_at: "2026-03-09" },
+  { nick: "Link", score: 345, created_at: "2026-07-19" },
+  { nick: "Pichu", score: 376, created_at: "2026-09-29" },
+  { nick: "Ness", score: 401, created_at: "2026-12-18" },
+  { nick: "Falco", score: 488, created_at: "2026-01-22" },
+  { nick: "Sheik", score: 498, created_at: "2026-06-11" },
+  { nick: "IceClimb", score: 527, created_at: "2026-04-27" },
+  { nick: "Jigglypf", score: 544, created_at: "2026-08-08" },
+  { nick: "Fox", score: 552, created_at: "2026-05-10" },
+  { nick: "Dedede", score: 555, created_at: "2026-04-05" },
+  { nick: "Donkey", score: 577, created_at: "2026-12-03" },
+  { nick: "Kirby", score: 612, created_at: "2026-02-03" },
+  { nick: "Bowser", score: 612, created_at: "2026-11-26" },
+  { nick: "Duckula", score: 621, created_at: "2026-07-23" },
+  { nick: "MetaKnt", score: 643, created_at: "2026-03-15" },
+  { nick: "Sonic", score: 699, created_at: "2026-03-20" },
+  { nick: "Mewtwo", score: 711, created_at: "2026-10-14" },
+  { nick: "Luigi", score: 712, created_at: "2026-11-05" },
+  { nick: "Mario", score: 776, created_at: "2026-06-07" },
+  { nick: "Zelda", score: 802, created_at: "2026-05-16" },
+  { nick: "Peach", score: 805, created_at: "2026-01-17" },
+  { nick: "Samus", score: 821, created_at: "2026-08-25" },
+  { nick: "Pikachu", score: 824, created_at: "2026-09-12" },
+  { nick: "Snake", score: 873, created_at: "2026-02-28" },
+  { nick: "Marth", score: 915, created_at: "2026-02-14" },
+  { nick: "KingDed", score: 989, created_at: "2026-04-21" }
+];
+
+
+function renderRanking(data) {
+  const list = document.getElementById("ranking_list");
+  list.innerHTML = "";
+
+  data.forEach((row, index) => {
+    const li = document.createElement("li");
+    const fecha = new Date(row.created_at).toLocaleDateString();
+
+    li.innerHTML = `
+      <strong>${index + 1}. ${row.nick}</strong> — ${row.score} movimientos<br>
+      <small>${fecha}</small>
+    `;
+    list.appendChild(li);
+  });
+}
