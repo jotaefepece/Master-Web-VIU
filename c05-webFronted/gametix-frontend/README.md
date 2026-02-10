@@ -98,6 +98,7 @@ proveedores y sus relaciones muchos a muchos.
 ### 1Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU-USUARIO/gametix-frontend.git
-cd gametix-frontend
+git clone https://github.com/jotaefepece/Master-Web-VIU.git
+cd Master-Web-VIU/c05-webFronted/gametix-frontend
+
 ```
